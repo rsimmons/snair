@@ -45,7 +45,7 @@ SimpleVerticalStrips.prototype.sampleToPolys = function(imageData, density) {
     );
     result.push({x: cx + val*voff, y: 0});
 
-    for (var i = 1; i < (_this.stripRes - 1); i++) {
+    for (var i = 1; i < _this.stripRes; i++) {
       var ycent = i*du;
       var val = sampleQuad(imageData, density,
         {x: cx, y: ycent - hdu},

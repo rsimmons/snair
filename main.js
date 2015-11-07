@@ -20,7 +20,27 @@ function loadImageFromFile(file, cb) {
   reader.readAsDataURL(file);
 }
 
+function renderPolys(canvas, polys) {
+  var ctx = canvas.getContext('2d');
+
+  ctx.fillStyle = 'black';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = 'white';
+  for (var i = 0; i < polys.length; i++) {
+    var poly = polys[i];
+    ctx.beginPath();
+    for (var j = 0; j < poly.length; j++) {
+      var p = poly[j];
+      ctx.lineTo(p.x, p.y);
+    }
+    ctx.closePath();
+    ctx.fill();
+  }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+  var mainElem = document.getElementById('main');
   var dropTarget = document.getElementById('drop-target');
   dropTarget.addEventListener('dragover', function(e){ e.preventDefault(); }, true);
   dropTarget.addEventListener('drop', function(e) {
@@ -31,15 +51,20 @@ document.addEventListener('DOMContentLoaded', function() {
       var canvas = document.createElement('canvas');
       canvas.width = image.width;
       canvas.height = image.height;
+
+      mainElem.insertBefore(canvas, dropTarget);
+
       var ctx = canvas.getContext('2d');
       ctx.drawImage(image, 0, 0, image.width, image.height);
       var imageData = ctx.getImageData(0, 0, image.width, image.height);
       console.log('Extracted ' + imageData.data.length + ' bytes of image data');
 
       console.log('Sampling ...');
-      var testStrips = new strips.SimpleVerticalStrips(image.width, image.height, 1, 1);
-      var polys = testStrips.sampleToPolys(imageData, 0.001);
-      console.log('Sampled to polys:', polys);
+      var testStrips = new strips.SimpleVerticalStrips(image.width, image.height, 40, 100);
+      var polys = testStrips.sampleToPolys(imageData, 1);
+      // console.log('Sampled to polys:', polys);
+      console.log('Finished sampling');
+      renderPolys(canvas, polys);
     });
   }, true);
 });
