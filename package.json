@@ -1,0 +1,16 @@
+{
+  "author": "Russel Simmons",
+  "description": "Tool to artfully transform images to laser cutting instructions",
+  "license": "MIT",
+  "main": "main.js",
+  "name": "snair",
+  "scripts": {
+    "build": "browserify main.js > bundle.js",
+    "watch": "watchify main.js -o bundle.js -v"
+  },
+  "version": "0.0.0",
+  "devDependencies": {
+    "browserify": "^12.0.1",
+    "watchify": "^3.6.0"
+  }
+}
