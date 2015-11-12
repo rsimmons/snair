@@ -43,7 +43,7 @@ function renderPolys(canvas, polys) {
 }
 
 function polysToSVG(image, polys, forPreview) {
-  var framePadFrac = 0.1;
+  var framePadFrac = 0.05;
   var imageMaxDim = Math.max(image.width, image.height);
   var framePadPx = framePadFrac*imageMaxDim;
   var withFrameWidthPx = image.width + 2*framePadPx;
@@ -138,7 +138,7 @@ function setCurrentImage(image) {
     console.log('Extracted ' + imageData.data.length + ' bytes of image data');
 
     console.log('Sampling ...');
-    var testStrips = new strips.SimpleVerticalStrips(image.width, image.height, 40, 100);
+    var testStrips = new strips.SimpleVerticalStrips(image.width, image.height, 118, 200);
     currentPolys = testStrips.sampleToPolys(imageData, 1);
     console.log('Finished sampling');
     renderPolys(canvas, currentPolys);
