@@ -54,6 +54,7 @@ function polysToSVG(image, polys, forPreview) {
   var safeAreaWidth = 788;
   var safeAreaHeight = 382;
   var safeOffset = 6;
+  var beamWidth = 0.3; // Ponoko says 0.1-0.2mm on either side, so take average
 
   var polyScale = Math.min(safeAreaWidth/withFrameWidthPx, safeAreaHeight/withFrameHeightPx);
   var polyOffset = {
@@ -77,7 +78,7 @@ function polysToSVG(image, polys, forPreview) {
   var frameCutStyle;
   if (forPreview) {
     // For web preview
-    polyCutStyle = 'stroke="none" fill="white"';
+    polyCutStyle = 'stroke="white" stroke-width="' + beamWidth + '" fill="white"'; // simulate slight enlargement due to beam width
     frameCutStyle = 'stroke="none" fill="black"';
   } else {
     // For real laser cutting
