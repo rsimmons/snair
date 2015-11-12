@@ -49,43 +49,42 @@ function polysToSVG(image, polys, forPreview) {
   var withFrameWidthPx = image.width + 2*framePadPx;
   var withFrameHeightPx = image.height + 2*framePadPx;
 
-  var svgWidth, svgHeight;
-  var viewBox;
-  var polyScale;
-  var polyOffset;
-  var cutStrokeWidth;
-  var frameCutX, frameCutY, frameCutWidth, frameCutHeight;
+  // We give an extra mm of safe area padding beyond what Ponoko says, so we do 6mm instead of 5mm
+  // These safeXXX vars are in mm units
+  var safeAreaWidth = 788;
+  var safeAreaHeight = 382;
+  var safeOffset = 6;
+
+  var polyScale = Math.min(safeAreaWidth/withFrameWidthPx, safeAreaHeight/withFrameHeightPx);
+  var polyOffset = {
+    x: safeOffset + framePadPx*polyScale,
+    y: safeOffset + framePadPx*polyScale,
+  };
+
+  var totalWidth = polyScale*withFrameWidthPx + 2*safeOffset;
+  var totalHeight = polyScale*withFrameHeightPx + 2*safeOffset;
+  var svgWidth = totalWidth + 'mm';
+  var svgHeight = totalHeight + 'mm';
+  var viewBox = '0 0 ' + totalWidth + ' ' + totalHeight;
+
+
+  var frameCutX = safeOffset;
+  var frameCutY = safeOffset;
+  var frameCutWidth = polyScale*withFrameWidthPx;
+  var frameCutHeight = polyScale*withFrameHeightPx;
+
+  var polyCutStyle;
+  var frameCutStyle;
   if (forPreview) {
     // For web preview
-    polyScale = 1.0;
-    polyOffset = 0;
-    cutStrokeWidth = '1px';
+    polyCutStyle = 'stroke="none" fill="white"';
+    frameCutStyle = 'stroke="none" fill="black"';
   } else {
     // For real laser cutting
-    // We give an extra mm of safe area padding beyond what Ponoko says, so we do 6mm instead of 5mm
-    // These safeXXX vars are in mm units
-    var safeAreaWidth = 788;
-    var safeAreaHeight = 382;
-    var safeOffset = 6;
-
-    polyScale = Math.min(safeAreaWidth/withFrameWidthPx, safeAreaHeight/withFrameHeightPx);
-    polyOffset = {
-      x: safeOffset + framePadPx*polyScale,
-      y: safeOffset + framePadPx*polyScale,
-    };
-
-    var totalWidth = polyScale*withFrameWidthPx + 2*safeOffset;
-    var totalHeight = polyScale*withFrameHeightPx + 2*safeOffset;
-    svgWidth = totalWidth + 'mm';
-    svgHeight = totalHeight + 'mm';
-    viewBox = '0 0 ' + totalWidth + ' ' + totalHeight;
-
-    cutStrokeWidth = '0.01';
-
-    frameCutX = safeOffset;
-    frameCutY = safeOffset;
-    frameCutWidth = polyScale*withFrameWidthPx;
-    frameCutHeight = polyScale*withFrameHeightPx;
+    var laserCutColor = 'rgb(0,0,255)';
+    var laserCutStrokeWidth = '0.01';
+    polyCutStyle = 'fill="none" stroke="' + laserCutColor + '" stroke-width="' + laserCutStrokeWidth + '"';
+    frameCutStyle = polyCutStyle;
   }
 
   var polysPathData = '';
@@ -109,12 +108,18 @@ function polysToSVG(image, polys, forPreview) {
     polysPathData += 'z'; // closepath
   }
 
-  var cutColor = 'rgb(0,0,255)';
   var exportText = '';
   exportText += '<?xml version="1.0" encoding="utf-8"?>\n<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n';
   exportText += '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="' + svgWidth + '" height="' + svgHeight + '" viewBox="' + viewBox + '">\n';
-  exportText += '  <path fill="none" stroke="' + cutColor + '" stroke-width="' + cutStrokeWidth + '" d="' + polysPathData + '"/>\n';
-  exportText += '  <rect x="' + frameCutX + '" y="' + frameCutX + '" width="' + frameCutWidth + '" height="' + frameCutHeight + '" fill="none" stroke="' + cutColor + '" stroke-width="' + cutStrokeWidth + '"/>\n';
+  var polyCutText = '  <path ' + polyCutStyle + ' d="' + polysPathData + '"/>\n';
+  var frameCutText = '  <rect ' + frameCutStyle + ' x="' + frameCutX + '" y="' + frameCutX + '" width="' + frameCutWidth + '" height="' + frameCutHeight + '"/>\n';
+  if (forPreview) {
+    exportText += frameCutText;
+    exportText += polyCutText;
+  } else {
+    exportText += polyCutText;
+    exportText += frameCutText;
+  }
   exportText += '</svg>';
 
   return exportText;
