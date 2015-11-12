@@ -33,36 +33,40 @@ SimpleVerticalStrips.prototype.sampleToPolys = function(imageData, density) {
   var hdu = 0.5*du;
   var _this = this;
 
+  function remapVal(v) {
+    return 0.1 + 0.8*v;
+  }
+
   function sampleHalfstrip(cx, voff) {
     var result = [];
 
     // First point is special
-    var val = sampleQuad(imageData, density,
+    var val = remapVal(sampleQuad(imageData, density,
       {x: cx, y: 0},
       {x: cx + voff, y: 0},
       {x: cx + voff, y: hdu},
       {x: cx, y: hdu}
-    );
+    ));
     result.push({x: cx + val*voff, y: 0});
 
     for (var i = 1; i < _this.stripRes; i++) {
       var ycent = i*du;
-      var val = sampleQuad(imageData, density,
+      var val = remapVal(sampleQuad(imageData, density,
         {x: cx, y: ycent - hdu},
         {x: cx + voff, y: ycent - hdu},
         {x: cx + voff, y: ycent + hdu},
         {x: cx, y: ycent + hdu}
-      );
+      ));
       result.push({x: cx + val*voff, y: ycent});
     }
 
     // Last point is special
-    var val = sampleQuad(imageData, density,
+    var val = remapVal(sampleQuad(imageData, density,
       {x: cx, y: _this.height - hdu},
       {x: cx + voff, y: _this.height - hdu},
       {x: cx + voff, y: _this.height},
       {x: cx, y: _this.height}
-    );
+    ));
     result.push({x: cx + val*voff, y: _this.height});
 
     return result;
