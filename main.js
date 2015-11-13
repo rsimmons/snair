@@ -102,6 +102,7 @@ function fillDerivedJobParams(sourceJobParams, image) {
   var withFrameHeightPx = image.height + 2*framePadPx;
 
   p.px2mm = Math.min(p.workAreaWidth/withFrameWidthPx, p.workAreaHeight/withFrameHeightPx);
+  p.mm2px = 1.0/p.px2mm;
   p.insetTranslation = { // in mm
     x: p.workAreaInset + framePadPx*p.px2mm,
     y: p.workAreaInset + framePadPx*p.px2mm,
@@ -137,7 +138,7 @@ function setCurrentImage(image) {
     fillDerivedJobParams(testJobParams, image); 
 
     console.log('Sampling ...');
-    var testStrips = new strips.SimpleVerticalStrips(image.width, image.height, 118, 200);
+    var testStrips = new strips.SimpleVerticalStrips(image.width, image.height, 118, 200, testJobParams.mm2px*testJobParams.beamWidth, testJobParams.mm2px*(testJobParams.minMaterialWidth+testJobParams.beamWidth));
     currentPolys = testStrips.sampleToPolys(imageData, 1);
     console.log('Finished sampling');
     renderPolys(canvas, currentPolys);
@@ -154,6 +155,7 @@ var testJobParams = {
   beamWidth: 0.3, // Ponoko says 0.1-0.2mm on either side, so take average
   laserCutColor: 'rgb(0,0,255)',
   laserCutStrokeWidth: '0.01',
+  minMaterialWidth: 1.0,
 };
 // END JOB HARDCODE
 
