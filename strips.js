@@ -19,28 +19,29 @@ function sampleQuad(imageData, density, a, b, c, d) {
   return totalR/(points.length*255);
 }
 
-function SimpleVerticalStrips(width, height, numStrips, stripRes, minCutSpacing, minMaterialWidth) {
+function SimpleVerticalStrips(width, height, numStrips, stripRes) {
   this.width = width;
   this.height = height;
   this.numStrips = numStrips;
   this.stripRes = stripRes;
   this.stripWidth = this.width/this.numStrips;
   this.stripHalfwidth = 0.5*this.stripWidth;
-  this.minCutHalfwidth = 0.5*minCutSpacing;
-  this.maxCutHalfwidth = this.stripHalfwidth - 0.5*minMaterialWidth;
 }
 
-SimpleVerticalStrips.prototype.sampleToPolys = function(imageData, density) {
+SimpleVerticalStrips.prototype.sampleToPolys = function(imageData, density, minCutSpacing, minMaterialWidth) {
   var du = this.height/this.stripRes;
   var hdu = 0.5*du;
   var _this = this;
   var shw = this.stripHalfwidth; // alias
 
+  var minCutHalfwidth = 0.5*minCutSpacing;
+  var maxCutHalfwidth = shw - 0.5*minMaterialWidth;
+
   function constrainCutHalfwidth(hw) {
-    if (hw < _this.minCutHalfwidth) {
-      return _this.minCutHalfwidth;
-    } else if (hw > _this.maxCutHalfwidth) {
-      return _this.maxCutHalfwidth;
+    if (hw < minCutHalfwidth) {
+      return minCutHalfwidth;
+    } else if (hw > maxCutHalfwidth) {
+      return maxCutHalfwidth;
     } else {
       return hw;
     }
