@@ -139,7 +139,7 @@ function setCurrentImage(image) {
 
     console.log('Sampling ...');
     var testStrips = new strips.SimpleVerticalStrips(image.width, image.height, 118, 200);
-    currentPolys = testStrips.sampleToPolys(imageData, 1, testJobParams.mm2px*testJobParams.beamWidth, testJobParams.mm2px*(testJobParams.minMaterialWidth+testJobParams.beamWidth));
+    currentPolys = testStrips.sampleToPolys(imageData, 1, testJobParams.mm2px*testJobParams.beamWidth, testJobParams.mm2px*testJobParams.minMaterialWidth, testJobParams.mm2px*testJobParams.beamWidth);
     console.log('Finished sampling');
     renderPolys(canvas, currentPolys);
 }

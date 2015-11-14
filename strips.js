@@ -28,16 +28,17 @@ function SimpleVerticalStrips(width, height, numStrips, stripRes) {
   this.stripHalfwidth = 0.5*this.stripWidth;
 }
 
-SimpleVerticalStrips.prototype.sampleToPolys = function(imageData, density, minCutSpacing, minMaterialWidth) {
+SimpleVerticalStrips.prototype.sampleToPolys = function(imageData, density, minCutSpacing, minMaterialWidth, beamWidth) {
   var du = this.height/this.stripRes;
   var hdu = 0.5*du;
   var _this = this;
   var shw = this.stripHalfwidth; // alias
 
   var minCutHalfwidth = 0.5*minCutSpacing;
-  var maxCutHalfwidth = shw - 0.5*minMaterialWidth;
+  var maxCutHalfwidth = shw - (0.5*minMaterialWidth + 0.5*beamWidth);
 
-  function constrainCutHalfwidth(hw) {
+  function adjustCutHalfwidth(hw) {
+    hw -= 0.5*beamWidth;
     if (hw < minCutHalfwidth) {
       return minCutHalfwidth;
     } else if (hw > maxCutHalfwidth) {
@@ -57,7 +58,7 @@ SimpleVerticalStrips.prototype.sampleToPolys = function(imageData, density, minC
       {x: cx + shw, y: hdu},
       {x: cx, y: hdu}
     );
-    result.push({x: cx + xdir*constrainCutHalfwidth(val*shw), y: 0});
+    result.push({x: cx + xdir*adjustCutHalfwidth(val*shw), y: 0});
 
     for (var i = 1; i < _this.stripRes; i++) {
       var ycent = i*du;
@@ -67,7 +68,7 @@ SimpleVerticalStrips.prototype.sampleToPolys = function(imageData, density, minC
         {x: cx + shw, y: ycent + hdu},
         {x: cx, y: ycent + hdu}
       );
-      result.push({x: cx + xdir*constrainCutHalfwidth(val*shw), y: ycent});
+      result.push({x: cx + xdir*adjustCutHalfwidth(val*shw), y: ycent});
     }
 
     // Last point is special
@@ -77,7 +78,7 @@ SimpleVerticalStrips.prototype.sampleToPolys = function(imageData, density, minC
       {x: cx + shw, y: _this.height},
       {x: cx, y: _this.height}
     );
-    result.push({x: cx + xdir*constrainCutHalfwidth(val*shw), y: _this.height});
+    result.push({x: cx + xdir*adjustCutHalfwidth(val*shw), y: _this.height});
 
     return result;
   }
