@@ -79,15 +79,31 @@ function polysToSVG(image, polys, jobParams, forPreview) {
   var exportText = '';
   exportText += '<?xml version="1.0" encoding="utf-8"?>\n<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n';
   exportText += '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="' + jobParams.totalWidth + 'mm" height="' + jobParams.totalHeight + 'mm" viewBox="0 0 ' + jobParams.totalWidth + ' ' + jobParams.totalHeight + '">\n';
+
   var polyCutText = '  <path ' + polyCutStyle + ' d="' + polysPathData + '"/>\n';
+
+  var hangholePoints = [
+    {x: jobParams.frameCutX + jobParams.hangholeInset, y: jobParams.frameCutY + jobParams.hangholeInset},
+    {x: jobParams.frameCutX + jobParams.frameCutWidth - jobParams.hangholeInset, y: jobParams.frameCutY + jobParams.hangholeInset},
+  ];
+  var hangholesCutText = '';
+  for (var i = 0; i < hangholePoints.length; i++) {
+    var hp = hangholePoints[i];
+    hangholesCutText += '  <circle ' + polyCutStyle + ' cx="' + hp.x.toFixed(4) + '" cy="' + hp.y.toFixed(4) + '" r="' + (0.5*(jobParams.hangholeDiameter-jobParams.beamWidth)).toFixed(4) + '"/>\n';
+  }
+
   var frameCutText = '  <rect ' + frameCutStyle + ' x="' + jobParams.frameCutX.toFixed(4) + '" y="' + jobParams.frameCutX.toFixed(4) + '" width="' + jobParams.frameCutWidth.toFixed(4) + '" height="' + jobParams.frameCutHeight.toFixed(4) + '"/>\n';
+
   if (forPreview) {
     exportText += frameCutText;
     exportText += polyCutText;
+    exportText += hangholesCutText;
   } else {
     exportText += polyCutText;
+    exportText += hangholesCutText;
     exportText += frameCutText;
   }
+
   exportText += '</svg>';
 
   return exportText;
@@ -156,6 +172,8 @@ var testJobParams = {
   laserCutColor: 'rgb(0,0,255)',
   laserCutStrokeWidth: '0.01',
   minMaterialWidth: 1.0,
+  hangholeInset: 10,
+  hangholeDiameter: 1.0, // this is final target size. we output smaller size due to beam width
 };
 // END JOB HARDCODE
 
