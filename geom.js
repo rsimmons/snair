@@ -1,5 +1,11 @@
 'use strict';
 
+function dist(a, b) {
+  var dx = a.x - b.x;
+  var dy = a.y - b.y;
+  return Math.sqrt(dx*dx + dy*dy);
+}
+
 function randPointInTri(a, b, c) {
   var j = Math.random();
   var k = Math.random();
@@ -40,5 +46,6 @@ function randPointsInQuad(density, a, b, c, d) {
 }
 
 module.exports = {
+  dist: dist,
   randPointsInQuad: randPointsInQuad,
 };

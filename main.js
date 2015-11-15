@@ -155,7 +155,7 @@ function setCurrentImage(image) {
 
     console.log('Sampling ...');
     var testStrips = new strips.SimpleVerticalStrips(image.width, image.height, 118, 200);
-    currentPolys = testStrips.sampleToPolys(imageData, 1, testJobParams.mm2px*testJobParams.beamWidth, testJobParams.mm2px*testJobParams.minMaterialWidth, testJobParams.mm2px*testJobParams.beamWidth);
+    currentPolys = testStrips.sampleToPolys(imageData, 1, 0.5*testJobParams.mm2px*testJobParams.beamWidth, testJobParams.minCutBehavior, testJobParams.mm2px*testJobParams.minMaterialWidth, testJobParams.mm2px*testJobParams.beamWidth);
     console.log('Finished sampling');
     renderPolys(canvas, currentPolys);
 }
@@ -174,6 +174,7 @@ var testJobParams = {
   minMaterialWidth: 1.0,
   hangholeInset: 10,
   hangholeDiameter: 1.0, // this is final target size. we output smaller size due to beam width
+  minCutBehavior: 'cull',
 };
 // END JOB HARDCODE
 

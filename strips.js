@@ -28,7 +28,7 @@ function SimpleVerticalStrips(width, height, numStrips, stripRes) {
   this.stripHalfwidth = 0.5*this.stripWidth;
 }
 
-SimpleVerticalStrips.prototype.sampleToPolys = function(imageData, density, minCutSpacing, minMaterialWidth, beamWidth) {
+SimpleVerticalStrips.prototype.sampleToPolys = function(imageData, density, minCutSpacing, minCutBehavior, minMaterialWidth, beamWidth) {
   var du = this.height/this.stripRes;
   var hdu = 0.5*du;
   var _this = this;
@@ -39,7 +39,9 @@ SimpleVerticalStrips.prototype.sampleToPolys = function(imageData, density, minC
 
   function adjustCutHalfwidth(hw) {
     hw -= 0.5*beamWidth;
-    if (hw < minCutHalfwidth) {
+    if (hw < 0) {
+      return 0;
+    } else if ((minCutBehavior === 'clamp') && (hw < minCutHalfwidth)) {
       return minCutHalfwidth;
     } else if (hw > maxCutHalfwidth) {
       return maxCutHalfwidth;
@@ -89,8 +91,44 @@ SimpleVerticalStrips.prototype.sampleToPolys = function(imageData, density, minC
 
     var leftPoints = sampleHalfstrip(cx, -1);
     var rightPoints = sampleHalfstrip(cx, 1);
-    rightPoints.reverse();
-    polys.push(leftPoints.concat(rightPoints));
+
+    var accumLeftPoints = [];
+    var accumRightPoints = [];
+    var inPoly = false;
+    function closeAndEmit() {
+      if (inPoly) {
+        if (accumLeftPoints.length > 1) {
+          accumRightPoints.reverse();
+          polys.push(accumLeftPoints.concat(accumRightPoints));
+        }
+        inPoly = false;
+        accumLeftPoints = [];
+        accumRightPoints = [];
+      }
+    }
+    for (var i = 0; i < leftPoints.length; i++) {
+      var lp = leftPoints[i];
+      var rp = rightPoints[i];
+
+      var include;
+      if (minCutBehavior === 'cull') {
+        include = (geom.dist(lp, rp) >= minCutSpacing);
+      } else {
+        include = true;
+      }
+      if (include) {
+        // Sufficiently wide, so add this to poly or start new poly
+        if (!inPoly) {
+          inPoly = true;
+        }
+        accumLeftPoints.push(lp);
+        accumRightPoints.push(rp);
+      } else {
+        // Not sufficiently wide, so close any open poly or just move on
+        closeAndEmit();
+      }
+    }
+    closeAndEmit();
   }
 
   return polys
